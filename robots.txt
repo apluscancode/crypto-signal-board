@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://apluscancode.github.io/crypto-signal-board/sitemap.xml

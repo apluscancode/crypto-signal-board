@@ -1,0 +1,63 @@
+name: Refresh signal board
+
+on:
+  schedule:
+    # every hour at :07 (GH Actions cron is UTC)
+    - cron: '7 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'fetch_candles.js'
+      - 'signal_engine.py'
+      - 'build_universe.py'
+      - 'index.html'
+      - 'style.css'
+      - 'app.js'
+      - '.github/workflows/refresh.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-signal-board
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install TradingView client
+        run: npm install @mathieuc/tradingview --no-audit --no-fund
+
+      - name: Build universe (top 100 coins)
+        run: python3 build_universe.py
+
+      - name: Fetch candles from TradingView
+        run: node fetch_candles.js
+
+      - name: Compute signals
+        run: python3 signal_engine.py
+
+      - name: Commit data
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/signals.json data/candles.json universe.json
+          if git diff --staged --quiet; then
+            echo "NO_CHANGE"
+          else
+            git commit -m "chore: refresh signals $(date -u +%Y-%m-%dT%H:%MZ)"
+            git push
+          fi
