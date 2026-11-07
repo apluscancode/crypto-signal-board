@@ -6,6 +6,7 @@ TRADEABLE ones. Stablecoins, wrapped/staked variants, exchange tokens and
 obviously-non-trading symbols are skipped so the board stays meaningful.
 """
 import json
+import os
 import time
 import urllib.request
 
@@ -99,7 +100,9 @@ def main():
             break
 
     print(f"universe: {len(coins)} coins")
-    with open('/root/crypto-dashboard/universe.json', 'w') as f:
+    # Relative to this script so it works both on the VPS and on a CI runner.
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, 'universe.json'), 'w') as f:
         json.dump(coins, f, indent=1, ensure_ascii=False)
     for c in coins[:8]:
         print(f"  {c['rank']:3} {c['symbol']:12} {c['tv']}")

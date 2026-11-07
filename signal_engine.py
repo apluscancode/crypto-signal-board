@@ -19,8 +19,9 @@ import json
 import os
 import sys
 
-CANDLES = '/root/crypto-dashboard/data/candles.json'
-OUT = '/root/crypto-dashboard/data/signals.json'
+_HERE = os.path.dirname(os.path.abspath(__file__))
+CANDLES = os.path.join(_HERE, 'data', 'candles.json')
+OUT = os.path.join(_HERE, 'data', 'signals.json')
 
 
 # ---------------------------------------------------------------- helpers
