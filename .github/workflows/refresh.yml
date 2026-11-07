@@ -39,7 +39,9 @@ jobs:
           node-version: '20'
 
       - name: Install TradingView client
-        run: npm install @mathieuc/tradingview --no-audit --no-fund
+        # Pinned: v4.x rewrote the whole API (getCandles/watchCandles) and
+        # drops the Client/Session/Chart classes this script is built on.
+        run: npm install @mathieuc/tradingview@3.5.2 --no-audit --no-fund
 
       - name: Build universe (top 100 coins)
         run: python3 build_universe.py
